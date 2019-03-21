@@ -19,9 +19,12 @@ First you'll need to install OctoPrint, the instructions are available at https:
 6. If everything went right you should see the OctoPrint home screen  
 
 PS: In case you encountered a conflict error with PyYAML on step ```3.``` make sure you remove the previous installation from PyYAML from your computer by doing: 
-1. ```$ rm -rf (EDIT) ```
+
+ ```$ sudo rm -rf /usr/local/lib/python2.7/dist-packages/yaml ```
+
 And then calling the setup file again to install all the dependencies but ignoring PyYAML (this is necessary because PyYAML is usually not completely deleted.)
-2. ```$ pip2.7 install . --ignore-installed ${PyYAML} ``` 
+
+ ```$ pip2.7 install . --ignore-installed ${PyYAML} ``` 
 
 By entering the OctoPrint home screen for the first time you should setup your 3D Printer. Make sure to include the baudrate from your 3D Printer and enable the API Key (respectively copying it).
 In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, which will enable us to send gcode to octoprint, which will take care of the conversion to x3g. In order to do that do the following:
@@ -33,7 +36,7 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 
 ## Installing
 
-This project should be run from source, to do so just go to your ROS workspace and clone it with ```git clone https://github.com/ielson/octoROS.git```. After that you can't forget to make the file executable, otherwise ROS won't find it.
+This project should be run from source, to do so just go to your ROS workspace and clone it with ``` $ git clone https://github.com/ielson/octoROS.git```. After that you can't forget to make the file executable, otherwise ROS won't find it.
 
 ## Usage
 To use it, you need to have your octoprint server running, have a model uploaded to it, and then run the octoROS.py file, changing the file name in the 59th line to the uploaded file name. 
