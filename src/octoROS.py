@@ -13,8 +13,9 @@ from std_msgs.msg import String
 
 import messenger
 
+file_to_print = 'FlexiRexColor1.gcode'
 
-class interface:
+class RosInterface(object):
     def __init__(self):
         self.print_pub = rospy.Publisher('printer3d', String, queue_size=100)
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
@@ -53,10 +54,10 @@ class interface:
 
 
 def main(args):
-    # Ros was not catching interrupt exceptions, so I had to disable signals and use the KeyboardInterrupt exception
+    # ROS was not catching interrupt exceptions, so I had to disable signals and use the KeyboardInterrupt exception
     rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
-    interf = interface()
-    interf.printAndGetStatus('FlexiRexColor1.gcode')
+    interf = RosInterface()
+    interf.printAndGetStatus(file_to_print)
 
 
 if __name__ == '__main__':

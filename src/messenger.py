@@ -57,6 +57,10 @@ def getprinterInfo():
     tool0Temp = response.json()['temperature']['tool0']['actual']
     tool1Temp = response.json()['temperature']['tool1']['actual']
     bedTemp = response.json()['temperature']['bed']['actual']
+    # 
+    #
+    #
+    #
     return tool0Temp, tool1Temp, bedTemp
 
 

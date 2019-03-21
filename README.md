@@ -57,18 +57,7 @@ To use it, you need to have your octoprint server running, have a model uploaded
 
 So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
-Example of usage:
-``` $ roscore ```
-# in another terminal run 
-``` $ rosrun octoROS octoROS.py ```
-
-
-
-```
-```
-Give an example
-```
-
+``` $ roslaunch octoROS connect_to_printer.launch ```
 
 ## Authors
 
@@ -82,4 +71,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-Many thank to the octoprint team, that made this awesome software
+Many thanks to the octoprint team, that made this awesome software
