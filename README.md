@@ -24,7 +24,7 @@ PS: In case you encountered a conflict error with PyYAML on step ```3.``` make s
 
 And then calling the setup file again to install all the dependencies but ignoring PyYAML (this is necessary because PyYAML is usually not completely deleted.)
 
- ```$ pip2.7 install . --ignore-installed ${PyYAML} ``` 
+ ```$ sudo pip2.7 install . --ignore-installed ${PyYAML} ``` 
 
 By entering the OctoPrint home screen for the first time you should setup your 3D Printer. Make sure to include the baudrate from your 3D Printer and enable the API Key (respectively copying it).
 In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, which will enable us to send gcode to octoprint, which will take care of the conversion to x3g. In order to do that do the following:
@@ -36,18 +36,32 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 
 ## Installing
 
-This project should be run from source, to do so just go to your ROS workspace and clone it with ``` $ git clone https://github.com/ielson/octoROS.git```. After that you can't forget to make the file executable, otherwise ROS won't find it.
+This project should be run from source, to do so just go to your ROS workspace (supposing is called ``` catkin_ws ```):
+
+``` $ cd ~/catkin_ws/src ```
+
+And clone it with: 
+
+``` $ git clone https://github.com/ielson/octoROS.git```
+
+Tether octoROS with your catkin workspace:
+
+``` $ cd ~/catkin_ws ```
+
+``` $ catkin_make ```
+
+After that you can't forget to make ``` octoROS.py ``` executable, otherwise ROS won't find it.
 
 ## Usage
-To use it, you need to have your octoprint server running, have a model uploaded to it, and then run the octoROS.py file, changing the file name in the 59th line to the uploaded file name. 
+To use it, you need to have your octoprint server running, have a model uploaded to it, changing the file name in the 59th line to the uploaded file name and then run the octoROS.py file. 
 
 So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
 Example of usage:
-```
-$ roscore
+``` $ roscore ```
 # in another terminal run 
-$ rosrun octoROS octoROS.py 
+``` $ rosrun octoROS octoROS.py ```
+
 
 
 ```
@@ -69,17 +83,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 Many thank to the octoprint team, that made this awesome software
-
-## Prerequisites/Deprecated
-
-We don't wish to use virtualenv for our application, that's why this section is here just as backup!
-First you'll need to install OctoPrint, the instructions are available at https://github.com/foosel/OctoPrint. But the easiest way that I see is with the following instructions
-
-1. Checkout OctoPrint:  ```$ git clone https://github.com/foosel/OctoPrint.git```
-2. Change into the OctoPrint folder: ```$ cd OctoPrint```
-3. Create a user-owned virtual environment therein: ```$ virtualenv venv```
-4. Install OctoPrint into that virtual environment: ```$ ./venv/bin/pip install .```
-5. Enter on your virtual environment ```$ source venv/bin/activate```
-6. After installing OctoPrint, you should run it using: ```$ octoprint serve```   
-7. Now you should verify your installation opening a web browser and going to http://localhost:5000
-8. If everything went right you should see the OctoPrint home screen  
