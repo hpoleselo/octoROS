@@ -1,0 +1,4 @@
+float32 temperature_tool1
+float32 temperature_tool2
+float32 temperature_bed
+float32 progress
