@@ -33,6 +33,9 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 3. After GPX is installed, make sure to check in the plugin's list if the GPX plugin is enabled
 4. Choose your machine, gcode flavor and other settings
 
+PS: In case you encountered the error that the octoprint could not open your port, do the following:
+
+ ```$ sudo chmod 666 /dev/ttyACM0 ``` 
 
 ## Installing
 
@@ -62,6 +65,7 @@ So it will start printing the model and outputting the progress and some printer
 ## Authors
 
 * **Daniel Mascarenhas** - *Initial work* - [ielson](https://github.com/ielson)
+* **Henrique Poleselo**
 
 See also the list of [contributors](https://github.com/ielson/octoROS/contributors) who participated in this project.
 
