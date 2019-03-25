@@ -42,15 +42,16 @@ class RosInterface(object):
             print("Progress: {}%".format(progress))
             # TODO change to a action
             self.print_pub.publish("Progress: {}%".format(progress))
-            tool0Temp, tool1Temp, bedTemp, isPrinting, isPaused, fileName, estimatedTime = messenger.getprinterInfo()
+            tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, isPrinting, isPaused = messenger.getprinterInfo()
+            fileName, estimatedTime = messenger.getFileInfo()
 
             # TEST
             print 'file name:', fileName
             print 'estimated time left: ', estimatedTime
             # TODO Need to see the type returned by getPrinterInfo, so I can make a msg and send it to the right topic
-            print("Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0Temp, tool1Temp, bedTemp))
+            print("Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0TempA, tool1TempA, bedTempA))
             self.print_pub.publish(
-                "Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0Temp, tool1Temp, bedTemp))
+                "Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0TempA, tool1TempA, bedTempA))
             self.rate.sleep()
         print("Successful print!")
         self.print_pub.publish("Successful print")
@@ -70,3 +71,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("Shutting down")
         messenger.cancelPrinting()
+

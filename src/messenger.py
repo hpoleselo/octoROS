@@ -10,7 +10,7 @@ import requests
 
 octoIP = "http://127.0.0.1"
 octoPort = ":5000"
-apiKey = "A5B916E2F8724A239572AEB63CA3D682"
+apiKey = "C721E487D74E492AAF2CB4D9E787326F"
 
 # json key with the API Key
 standardHeader = {'X-Api-Key': apiKey}
@@ -37,10 +37,7 @@ def printModel(modelName):
     return requests.post(url, json=printData, headers=standardHeader, timeout=5)
 
 
-# Job operations
-def progressTracking():
-    response = requests.get(_url('job'), headers=standardHeader, timeout=5)
-    return (response.json()['progress']['completion'])
+# --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
 
 # Realize that all the functions are the same the only thing that changes is the jsonData, which is basically
 # the command we're sending!
@@ -59,23 +56,42 @@ def resumePrinting():
     jsonData = {'command':'pause', 'action':'resume'}
     return requests.post(_url('job'), headers=standardHeader, timeout=5, json=jsonData)
 
-# Printer operations
+# --- RETRIEVING INFORMATION FROM PRINTER ---
+def progressTracking():
+    response = requests.get(_url('job'), headers=standardHeader, timeout=5)
+    return (response.json()['progress']['completion'])
+
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
-    tool0Temp = response.json()['temperature']['tool0']['actual']
-    tool1Temp = response.json()['temperature']['tool1']['actual']
-    bedTemp = response.json()['temperature']['bed']['actual']
+    tool0TempA = response.json()['temperature']['tool0']['actual']
+    tool1TempA = response.json()['temperature']['tool1']['actual']
+    bedTempA = response.json()['temperature']['bed']['actual']
     
-    # TEST / state details -> retorna booleano
-    isPrinting = response.json()['state']['flag']['printing']
-    isPaused = response.json()['state']['flag']['pausing']
-    
-    # TEST / file details
-    fileName = response.json()['files']['name']
-    # in minutes
-    estimatedTime = response.json()['files']['gcodeAnalysis']['estimatedPrintTime']
-    
-    return tool0Temp, tool1Temp, bedTemp, isPrinting, isPaused, fileName, estimatedTime
+    # Additional information besides what Daniel has made
+    isPrinting = response.json()['state']['flags']['printing']
+    isPaused = response.json()['state']['flags']['pausing']
+    # Targets
+    tool0TempT = response.json()['temperature']['tool0']['target']
+    tool1TempT = response.json()['temperature']['tool1']['target']
+    bedTempT = response.json()['temperature']['bed']['target']
+
+    return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, isPrinting, isPaused
+
+def getFileInfo():
+    """ Function to retrieve the information from the file being printed.
+    to understand more, see:
+    http://docs.octoprint.org/en/master/api/files.html
+    """
+
+    file_response = requests.get(_url('files'), headers=standardHeader, timeout=5)
+    # We have to say the index first because as documented, the files key has a list of keys, not key of keys...
+    fileName = file_response.json()['files'][0]['name']
+    fileSize = file_response.json()['files'][0]['size']
+    # In minutes
+    estimatedTime = file_response.json()['files'][0]['gcodeAnalysis']['estimatedPrintTime']
+    # In hours
+    estimatedTime = estimatedTime/60
+    return fileName, estimatedTime
 
 def getTimelapse():
     gtl_response = requests.get(_url('timelapse'), headers=standardHeader, timeout=5)
@@ -85,3 +101,4 @@ def _url(path):
     """ Function to pass the URL """
     octoAddress = octoIP + octoPort + '/api/'
     return octoAddress + path
+
