@@ -13,7 +13,7 @@ First you'll need to install OctoPrint, the instructions are available at https:
 
 1. Checkout OctoPrint:  ```$ git clone https://github.com/foosel/OctoPrint.git```
 2. Change into the OctoPrint folder: ```$ cd OctoPrint```
-3. Request pip to run the setup file, i.e install all the necessary dependencies: ```$ pip2.7 install .```
+3. Request pip to run the setup file, i.e install all the necessary dependencies: ```$ sudo pip2.7 install .```
 4. After installing OctoPrint, you should run it using: ```$ octoprint serve```   
 5. Now you should verify your installation opening a web browser and going to http://localhost:5000
 6. If everything went right you should see the OctoPrint home screen  
