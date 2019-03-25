@@ -37,21 +37,27 @@ class RosInterface(object):
             # raise Exception('Could not print, status code: {}'.format(printing.status_code))
         self.print_pub.publish("Starting to print model {}".format(modelName))
         progress = messenger.progressTracking()
+        rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
         while progress < 100 and not rospy.is_shutdown():
-            progress = messenger.progressTracking()
-            print("Progress: {}%".format(progress))
-            # TODO change to a action
-            self.print_pub.publish("Progress: {}%".format(progress))
+            # Retrieving all data
             tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, isPrinting, isPaused = messenger.getprinterInfo()
             fileName, estimatedTime = messenger.getFileInfo()
+            progress = messenger.progressTracking()
+            timeLapse = messenger.getTimeLapse()
 
-            # TEST
-            print 'file name:', fileName
-            print 'estimated time left: ', estimatedTime
+            # TODO change to a action
+            
+            self.print_pub.publish("--- Actual data ---")
             # TODO Need to see the type returned by getPrinterInfo, so I can make a msg and send it to the right topic
-            print("Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0TempA, tool1TempA, bedTempA))
+            self.print_pub.publish("File name: {}, Printing: {}, Paused:{}".format(fileName, isPrinting, isPaused))
+            self.print_pub.publish("Progress: {}%".format(progress))
+            self.print_pub.publish("Estimated time left: {}h".format(estimatedTime))
             self.print_pub.publish(
                 "Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0TempA, tool1TempA, bedTempA))
+            self.print_pub.publish("--- Target data ---")
+            self.print_pub.publish(
+                "Tool 0 temp: {}C, tool 1 temp: {}C, bed temp: {}C".format(tool0TempT, tool1TempT, bedTempT))
+            
             self.rate.sleep()
         print("Successful print!")
         self.print_pub.publish("Successful print")

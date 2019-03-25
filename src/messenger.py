@@ -63,6 +63,8 @@ def progressTracking():
 
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
+
+    # Actual measurements
     tool0TempA = response.json()['temperature']['tool0']['actual']
     tool1TempA = response.json()['temperature']['tool1']['actual']
     bedTempA = response.json()['temperature']['bed']['actual']
@@ -70,6 +72,7 @@ def getprinterInfo():
     # Additional information besides what Daniel has made
     isPrinting = response.json()['state']['flags']['printing']
     isPaused = response.json()['state']['flags']['pausing']
+    
     # Targets
     tool0TempT = response.json()['temperature']['tool0']['target']
     tool1TempT = response.json()['temperature']['tool1']['target']
@@ -89,11 +92,12 @@ def getFileInfo():
     fileSize = file_response.json()['files'][0]['size']
     # In minutes
     estimatedTime = file_response.json()['files'][0]['gcodeAnalysis']['estimatedPrintTime']
-    # In hours
-    estimatedTime = estimatedTime/60
+    # In hours, TODO: convert the rest to minutes
+    estimatedTime = round(estimatedTime/60,2)
     return fileName, estimatedTime
 
-def getTimelapse():
+def getTimeLapse():
+    # Not working yet. Returning <Response [200]>
     gtl_response = requests.get(_url('timelapse'), headers=standardHeader, timeout=5)
     return gtl_response
 
