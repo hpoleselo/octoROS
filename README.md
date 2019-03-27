@@ -35,7 +35,7 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 
 PS: In case you encountered the error that the octoprint could not open your port, do the following:
 
- ```$ sudo chmod 666 /dev/ttyACM0 ``` 
+ ```$ sudo chmod +r /dev/ttyACM0 ``` 
 
 ## Installing
 

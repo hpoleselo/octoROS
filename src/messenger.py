@@ -61,6 +61,26 @@ def progressTracking():
     response = requests.get(_url('job'), headers=standardHeader, timeout=5)
     return (response.json()['progress']['completion'])
 
+def rateState(isPrinting, isPaused, isReadyToPrint, isCancelled):
+    """ Function that rates all the states from the printer and returns just one state to send as a String
+    to ROS. Short: encapsulates all states in one function. This function is expandable, you can add more 
+    states to be rated."""
+    if isReadyToPrint:
+        finalState = "Available and ready for Printing"
+    elif isPaused:
+        finalState = "Printing process has been paused"
+    elif isPrinting:
+        finalState = "Printing"
+    elif isCancelled:
+        finalState = "Cancelling printing."
+    else:
+        finalState = "Offline"
+    #elif:
+    #    finalState = "Busy_Yellow"
+    #elif:
+    #    finalState = "Busy_Red"
+    return finalState
+
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
 
@@ -72,13 +92,18 @@ def getprinterInfo():
     # Additional information besides what Daniel has made
     isPrinting = response.json()['state']['flags']['printing']
     isPaused = response.json()['state']['flags']['pausing']
+    isReadyToPrint = response.json()['state']['flags']['operational']
+    isCancelled = response.json()['state']['flags']['cancelling']
     
     # Targets
     tool0TempT = response.json()['temperature']['tool0']['target']
     tool1TempT = response.json()['temperature']['tool1']['target']
     bedTempT = response.json()['temperature']['bed']['target']
 
-    return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, isPrinting, isPaused
+    # Call function to encapsulate all states in one
+    state = rateState(isPrinting, isPaused, isReadyToPrint, isCancelled)
+
+    return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state
 
 def getFileInfo():
     """ Function to retrieve the information from the file being printed.
@@ -88,13 +113,14 @@ def getFileInfo():
 
     file_response = requests.get(_url('files'), headers=standardHeader, timeout=5)
     # We have to say the index first because as documented, the files key has a list of keys, not key of keys...
-    fileName = file_response.json()['files'][0]['name']
+    # and convert it to str because we're getting a unicode type (ROS will complain about it later.)
+    fileName = str(file_response.json()['files'][0]['name'])
     fileSize = file_response.json()['files'][0]['size']
     # In minutes
     estimatedTime = file_response.json()['files'][0]['gcodeAnalysis']['estimatedPrintTime']
     # In hours, TODO: convert the rest to minutes
     estimatedTime = round(estimatedTime/60,2)
-    return fileName, estimatedTime
+    return fileName, estimatedTime, fileSize
 
 def getTimeLapse():
     # Not working yet. Returning <Response [200]>
@@ -105,4 +131,3 @@ def _url(path):
     """ Function to pass the URL """
     octoAddress = octoIP + octoPort + '/api/'
     return octoAddress + path
-
