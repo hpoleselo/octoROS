@@ -26,7 +26,10 @@ And then calling the setup file again to install all the dependencies but ignori
 
  ```$ sudo pip2.7 install . --ignore-installed ${PyYAML} ``` 
 
-By entering the OctoPrint home screen for the first time you should setup your 3D Printer. Make sure to include the baudrate from your 3D Printer and enable the API Key (respectively copying it).
+**_By entering the OctoPrint home screen for the first time you should setup your 3D Printer using the wizard from Octoprint, make sure to setup it correctly._** Don't forget to include the baudrate from your 3D Printer and enable the API Key **(respectively copying it)**.
+
+**Paste the copied API Key on the 13th line of** ``` messenger.py ```
+
 In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, which will enable us to send gcode to octoprint, which will take care of the conversion to x3g. In order to do that do the following:
 1. In the octoPrint home screen go to configurations/Plugin manager/Get More
 2. Search for GPX and click install 
@@ -68,11 +71,27 @@ The output should be like this:
 ``` 
 [INFO] [1553712847.912730]: Initialized!
 [INFO] [1553712847.920685]: Starting to print model testfile.gcode
-[INFO] [1553712847.928079]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data. ```
-
+[INFO] [1553712847.928079]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.
+```
 
 Go to another terminal and:
-``` $ rostopic echo / ```
+``` $ rostopic echo /printer3d ```
+
+The output should be like this:
+```
+ricky@c-137:~/wspace_ros/src/octo_ros/src$ rostopic echo /printer3d
+temp_tool1_actual: 31.0
+temp_tool2_actual: 30.0
+temp_bed_actual: 26.0
+file_name: "Teste.gcode"
+printer3d_state: "Available and ready for Printing"
+progress: 0.0
+estimated_time: 7.26000022888
+temp_tool1_goal: 0.0
+temp_tool2_goal: 0.0
+temp_bed_goal: 0.0
+---
+```
 
 So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
