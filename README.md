@@ -31,11 +31,11 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 1. In the octoPrint home screen go to configurations/Plugin manager/Get More
 2. Search for GPX and click install 
 3. After GPX is installed, make sure to check in the plugin's list if the GPX plugin is enabled
-4. Choose your machine, gcode flavor and other settings
+4. Make sure to configure correctly in the GPX plugin all the settings for your 3D printer (machine, gcode flavor and other settings)
 
 PS: In case you encountered the error that the octoprint could not open your port, do the following:
 
- ```$ sudo chmod +r /dev/ttyACM0 ``` 
+ ```$ sudo chmod 666 /dev/ttyACM0 ``` 
 
 ## Installing
 
@@ -45,7 +45,7 @@ This project should be run from source, to do so just go to your ROS workspace (
 
 And clone it with: 
 
-``` $ git clone https://github.com/ielson/octoROS.git```
+``` $ git clone https://github.com/hpoleselo/octoROS.git```
 
 Tether octoROS with your catkin workspace:
 
@@ -53,19 +53,35 @@ Tether octoROS with your catkin workspace:
 
 ``` $ catkin_make ```
 
-After that you can't forget to make ``` octoROS.py ``` executable, otherwise ROS won't find it.
+Make ``` octoROS.py ``` executable so ROS can identify it:
+
+``` $ roscd octo_ros/src ```
+
+``` $ chmod +x octoROS.py ```
 
 ## Usage
-To use it, you need to have your octoprint server running, have a model uploaded to it, changing the file name in the 59th line to the uploaded file name and then run the octoROS.py file. 
+In order to use it, you need to have your octoprint server running, have a model uploaded to it, changing the file name in the 16th line to the uploaded file name and then run the octoROS.py file. 
+
+``` $ roslaunch octo_ros connect_to_printer.launch ```
+
+The output should be like this:
+``` 
+[INFO] [1553712847.912730]: Initialized!
+[INFO] [1553712847.920685]: Starting to print model testfile.gcode
+[INFO] [1553712847.928079]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data. ```
+
+
+Go to another terminal and:
+``` $ rostopic echo / ```
 
 So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
-``` $ roslaunch octoROS connect_to_printer.launch ```
+
 
 ## Authors
 
 * **Daniel Mascarenhas** - *Initial work* - [ielson](https://github.com/ielson)
-* **Henrique Poleselo**
+* **Henrique Poleselo** - *Additional functionalities* - [hpoleselo](https://github.com/hpoleselo)
 
 See also the list of [contributors](https://github.com/ielson/octoROS/contributors) who participated in this project.
 

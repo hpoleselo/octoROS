@@ -6,13 +6,10 @@ http://docs.octoprint.org/en/master/api/index.html
 """
 
 import sys
-
 import rospy
 from std_msgs.msg import Bool
 from std_msgs.msg import String
 from octo_ros.msg import PrinterState
-
-
 
 import messenger
 
@@ -64,19 +61,6 @@ class RosInterface(object):
             pstate.temp_tool1_goal = tool0TempT
             pstate.temp_tool2_goal = tool1TempT
             pstate.temp_bed_goal = bedTempT
-            
-            """
-            float32 temp_tool1_actual
-float32 temp_tool2_actual
-float32 temp_bed_actual
-string file_name
-string printer3d_state
-float32 progress
-float32 estimated_time
-float32 temp_tool1_goal
-float32 temp_tool2_goal
-float32 temp_bed_goal
-"""
 
             self.print_pub.publish(pstate)
 

@@ -39,9 +39,6 @@ def printModel(modelName):
 
 # --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
 
-# Realize that all the functions are the same the only thing that changes is the jsonData, which is basically
-# the command we're sending!
-
 def cancelPrinting():
     # Format is: command: YOUR_COMMAND
     # And we are passing it as a JSON (with key values)
