@@ -63,7 +63,7 @@ Make ``` octoROS.py ``` executable so ROS can identify it:
 ``` $ chmod +x octoROS.py ```
 
 ## Usage
-In order to use it, you need to have your octoprint server running, have a model uploaded to it, **changing the file name in the 16th line to the uploaded file name** and then run the octoROS.py file. 
+In order to use it, you need to have your octoprint server running, have a model uploaded to it, **changing the file name in the 16th line to the uploaded file name** and then run the launch file: 
 
 ``` $ roslaunch octo_ros connect_to_printer.launch ```
 
@@ -74,7 +74,8 @@ The output should be like this:
 [INFO] [1553712847.928079]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.
 ```
 
-Go to another terminal and:
+Go to another terminal and
+
 ``` $ rostopic echo /printer3d ```
 
 The output should be like this:
