@@ -63,7 +63,7 @@ Make ``` octoROS.py ``` executable so ROS can identify it:
 ``` $ chmod +x octoROS.py ```
 
 ## Usage
-In order to use it, you need to have your octoprint server running, have a model uploaded to it, changing the file name in the 16th line to the uploaded file name and then run the octoROS.py file. 
+In order to use it, you need to have your octoprint server running, have a model uploaded to it, **changing the file name in the 16th line to the uploaded file name** and then run the octoROS.py file. 
 
 ``` $ roslaunch octo_ros connect_to_printer.launch ```
 
