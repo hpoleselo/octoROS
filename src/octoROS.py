@@ -6,13 +6,14 @@ http://docs.octoprint.org/en/master/api/index.html
 """
 
 import sys
+import datetime
 import rospy
-from std_msgs.msg import Bool
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 from octo_ros.msg import PrinterState
 
 import messenger
 
+counter = 0
 fileToPrint = 'testfile.gcode'
 
 class RosInterface(object):
@@ -30,6 +31,19 @@ class RosInterface(object):
             raise Exception('Could not connect to printer, error code: {}'.format(connection.status_code))
         self.print_pub.publish("Connection succeeded")
 
+    def getDateTime(self):
+        date_time = datetime.datetime.now()
+        # Convert it to string to insert in our message
+        date_time = str(date_time)
+        return date_time
+
+    def countTimeStamp(self):
+        """ Currently implementing our own time stamp to count the messages that are being sent.
+        TODO: implement it using Header()"""
+        global counter
+        counter += 1
+        return counter
+
     def printAndGetStatus(self, modelName):
         printing = messenger.printModel(modelName)
         if printing.status_code != 204:
@@ -39,11 +53,14 @@ class RosInterface(object):
         progress = messenger.progressTracking()
         rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
         while progress < 100 and not rospy.is_shutdown():
+            
             # Retrieving all data
             tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state = messenger.getprinterInfo()
             fileName, estimatedTime, fileSize = messenger.getFileInfo()
             progress = messenger.progressTracking()
             timeLapse = messenger.getTimeLapse()
+            date_time = self.getDateTime()
+            ts = self.countTimeStamp()
             
             # If the printer is not printing something then it returns None
             if progress == None:
@@ -51,6 +68,8 @@ class RosInterface(object):
             
             # Encapsulate all the data
             pstate = PrinterState()
+            pstate.timestamp = ts
+            pstate.date_time = date_time
             pstate.temp_tool1_actual = tool0TempA
             pstate.temp_tool2_actual = tool1TempA
             pstate.temp_bed_actual = bedTempA

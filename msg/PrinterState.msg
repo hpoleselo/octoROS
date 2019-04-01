@@ -1,5 +1,9 @@
 # -- ACTUAL DATA --
 
+# timestamp for logging
+int8 timestamp
+string date_time
+
 # data from the 3D Printer
 float32 temp_tool1_actual
 float32 temp_tool2_actual

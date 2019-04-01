@@ -1,3 +1,14 @@
 <launch>
+    <!-- Switch to commute if using the logging for a txt file. -->
+    <arg name="generate_logfile" default="False"/>
+
+    <!-- Run our interface with the 3DPrinter -->
     <node pkg="octo_ros" type="octoROS.py" name="printerWatcher" output="screen"/>
+
+    <!-- If the generate_logfile is True then we run our node! -->
+    <group if="$(arg generate_logfile)">
+
+        <!-- Added cwd parameter in order to our program to write the file locally on the node. -->
+        <node pkg="octo_ros" type="save_log.py" name="logSaver"  output="screen" cwd="node"/>
+    </group>
 </launch>
