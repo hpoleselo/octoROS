@@ -21,7 +21,7 @@ class RosInterface(object):
         self.print_pub = rospy.Publisher('printer3d', PrinterState, queue_size=100)
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
         self.rate = rospy.Rate(0.1)  # 0.1 hz
-        rospy.loginfo("Initialized!")
+        rospy.loginfo("---- OctoROS Initialized! ----")
 
     def performConnection(self):
         rospy.loginfo("Trying to connect to the 3D Printer...")
@@ -41,27 +41,39 @@ class RosInterface(object):
         """ Currently implementing our own time stamp to count the messages that are being sent.
         TODO: implement it using Header()"""
         global counter
+        #print "dentro do timestamp", counter
         counter += 1
-        return counter
+        return int(counter)
 
-    def printAndGetStatus(self, modelName):
+    def countTime(self, ts):
+        global counter
+        print "dentro do timer", counter
+        if counter < 0:
+            timeInSeconds = ts*10
+            print timeInSeconds
+            return timeInSeconds
+
+    def printPartAndGetStatus(self, modelName):
         printing = messenger.printModel(modelName)
         if printing.status_code != 204:
             pass
-            # raise Exception('Could not print, status code: {}'.format(printing.status_code))
+            raise Exception('Could not print, status code: {}'.format(printing.status_code))
         rospy.loginfo("Starting to print model {}".format(modelName))
-        progress = messenger.progressTracking()
+        
+        # Temporary, but disregarding some variables
+        progress, _, _, _, _ = messenger.printingProgressTracking()
         rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
         while progress < 100 and not rospy.is_shutdown():
-            
+            progress, printingTimeLeft, timeElapsed, fileName, fileSize = messenger.printingProgressTracking()
             # Retrieving all data
             tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state = messenger.getprinterInfo()
-            fileName, estimatedTime, fileSize = messenger.getFileInfo()
-            progress = messenger.progressTracking()
-            timeLapse = messenger.getTimeLapse()
+            # mudar nome
             date_time = self.getDateTime()
             ts = self.countTimeStamp()
+            #timeElapsed = self.countTime(ts)
             
+
+
             # If the printer is not printing something then it returns None
             if progress == None:
                 progress = 0.0
@@ -74,15 +86,15 @@ class RosInterface(object):
             pstate.temp_tool2_actual = tool1TempA
             pstate.temp_bed_actual = bedTempA
             pstate.file_name = fileName
+            pstate.file_size = fileSize
             pstate.printer3d_state = state
             pstate.progress = progress
-            pstate.estimated_time = estimatedTime
+            #pstate.time_elapsed = timeElapsed
+            pstate.time_left = printingTimeLeft
             pstate.temp_tool1_goal = tool0TempT
             pstate.temp_tool2_goal = tool1TempT
             pstate.temp_bed_goal = bedTempT
-
             self.print_pub.publish(pstate)
-
             self.rate.sleep()
         self.print_pub.publish("Successful print")
         self.printFinished_pub.publish(True)
@@ -92,12 +104,12 @@ def main(args):
     # ROS was not catching interrupt exceptions, so I had to disable signals and use the KeyboardInterrupt exception
     rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
     interf = RosInterface()
-    interf.printAndGetStatus(fileToPrint)
+    interf.printPartAndGetStatus(fileToPrint)
 
 
 if __name__ == '__main__':
     try:
         main(sys.argv)
     except KeyboardInterrupt:
-        print("Shutting down")
+        print("Shutting down and cancelling printing...")
         messenger.cancelPrinting()

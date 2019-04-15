@@ -5,12 +5,12 @@ This library is based in the octoprint api, more info can be found here:
 http://docs.octoprint.org/en/master/api/index.html
 """
 
-
 import requests
+#import timecounter
 
 octoIP = "http://127.0.0.1"
 octoPort = ":5000"
-apiKey = "C721E487D74E492AAF2CB4D9E787326F"
+apiKey = "D53EF37275E14C8EA627A4E243E06538"
 
 # json key with the API Key
 standardHeader = {'X-Api-Key': apiKey}
@@ -26,22 +26,15 @@ def connectToPrinter():
 def modelSelection():
     pass
 
+# --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
+# --- FUNCTIONS TO SEND TO THE PRINTER --- 
 
 def printModel(modelName):
-    """" the modelname with the .gcode
-    in: modelname
-    return:  
-    """
     printData = {'command': 'select', 'print': True}
     url = _url('files/local/{}'.format(modelName))
     return requests.post(url, json=printData, headers=standardHeader, timeout=5)
 
-
-# --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
-
 def cancelPrinting():
-    # Format is: command: YOUR_COMMAND
-    # And we are passing it as a JSON (with key values)
     jsonData = {'command':'cancel'}
     return requests.post(_url('job'), headers=standardHeader, timeout=5, json=jsonData)
 
@@ -53,23 +46,41 @@ def resumePrinting():
     jsonData = {'command':'pause', 'action':'resume'}
     return requests.post(_url('job'), headers=standardHeader, timeout=5, json=jsonData)
 
-# --- RETRIEVING INFORMATION FROM PRINTER ---
-def progressTracking():
-    response = requests.get(_url('job'), headers=standardHeader, timeout=5)
-    return (response.json()['progress']['completion'])
 
-def rateState(isPrinting, isPaused, isReadyToPrint, isCancelled):
-    """ Function that rates all the states from the printer and returns just one state to send as a String
+# --- RETRIEVING INFORMATION FROM THE PRINTING PROCESS ---
+# --- FUNCTIONS TO SEND TO THE PRINTER --- 
+
+def printingProgressTracking():
+    response = requests.get(_url('job'), headers=standardHeader, timeout=5)
+    progress = response.json()['progress']['completion']
+    # In seconds! 
+    printTimeLeft = response.json()['progress']['printTimeLeft']
+    fileName = response.json()['job']['file']['name']
+    fileName = str(fileName)
+    # In bytes
+    fileSize = response.json()['job']['file']['size']
+    fileSize = str(fileSize)
+    #timeElapsed = timecounter.count()
+    timeElapsed = 0
+    return progress, printTimeLeft, timeElapsed, fileName, fileSize
+
+def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled):
+    """ Function that rates all the states from the printer and returns just one state to send xas a String
     to ROS. Short: encapsulates all states in one function. This function is expandable, you can add more 
     states to be rated."""
-    if isReadyToPrint:
-        finalState = "Available and ready for Printing"
-    elif isPaused:
+
+    if isPaused:
         finalState = "Printing process has been paused"
+    elif isBedHeating:
+        finalState = "Bed heating"
+    elif isToolHeating:
+        finalState = "Extruder heating"
     elif isPrinting:
         finalState = "Printing"
     elif isCancelled:
-        finalState = "Cancelling printing."
+        finalState = "Cancelling printing"
+    elif isReadyToPrint:
+        finalState = "Available and ready for Printing"
     else:
         finalState = "Offline"
     #elif:
@@ -91,38 +102,46 @@ def getprinterInfo():
     isPaused = response.json()['state']['flags']['pausing']
     isReadyToPrint = response.json()['state']['flags']['operational']
     isCancelled = response.json()['state']['flags']['cancelling']
+    #print response.json()['state']
     
     # Targets
     tool0TempT = response.json()['temperature']['tool0']['target']
     tool1TempT = response.json()['temperature']['tool1']['target']
     bedTempT = response.json()['temperature']['bed']['target']
 
-    # Call function to encapsulate all states in one
-    state = rateState(isPrinting, isPaused, isReadyToPrint, isCancelled)
-
+    # Call functions to encapsulate all states in one
+    isToolHeating = checkToolHeating(tool0TempA, tool0TempT)
+    isBedHeating = checkBedHeating(bedTempA, bedTempT)
+    state = rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled)
     return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state
 
-def getFileInfo():
-    """ Function to retrieve the information from the file being printed.
-    to understand more, see:
-    http://docs.octoprint.org/en/master/api/files.html
-    """
+def checkBedHeating(bedTempA, bedTempT):
+    """ Functions to check if the bed is heating. This will be sent to rateState function to rate the atual state of the printer. """
+    isBedHeating = False
+    diff1 = bedTempT - bedTempA
+    #print "Temperature difference from Bed:", diff1
+    if diff1 > 0.0:
+        isBedHeating = True
+    elif diff1 <= 0.0:
+        isBedHeating = False
+    else:
+        isBedHeating = False
+    return isBedHeating
 
-    file_response = requests.get(_url('files'), headers=standardHeader, timeout=5)
-    # We have to say the index first because as documented, the files key has a list of keys, not key of keys...
-    # and convert it to str because we're getting a unicode type (ROS will complain about it later.)
-    fileName = str(file_response.json()['files'][0]['name'])
-    fileSize = file_response.json()['files'][0]['size']
-    # In minutes
-    estimatedTime = file_response.json()['files'][0]['gcodeAnalysis']['estimatedPrintTime']
-    # In hours, TODO: convert the rest to minutes
-    estimatedTime = round(estimatedTime/60,2)
-    return fileName, estimatedTime, fileSize
 
-def getTimeLapse():
-    # Not working yet. Returning <Response [200]>
-    gtl_response = requests.get(_url('timelapse'), headers=standardHeader, timeout=5)
-    return gtl_response
+def checkToolHeating(tool0TempA, tool0TempT):
+    """ Functions to check if the extruder is heating. This will be sent to rateState function to rate the atual state of the printer. """
+    isToolHeating = False
+    diff2 = tool0TempT - tool0TempA
+    #print "Temperature difference from Tool:", diff2
+    if diff2 > 0.0:
+        isToolHeating = True
+    elif diff2 <= 0.0:
+        isToolHeating = False
+    else:
+        isToolHeating = False
+    return isToolHeating
+    
 
 def _url(path):
     """ Function to pass the URL """
