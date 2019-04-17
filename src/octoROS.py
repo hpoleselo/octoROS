@@ -64,11 +64,11 @@ class RosInterface(object):
         rospy.loginfo("Starting to print model {}".format(modelName))
         
         # Temporary, but disregarding some variables
-        progress, _, _, _, _ = messenger.printingProgressTracking()
+        progress, _, _, _ = messenger.printingProgressTracking()
         rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
         while progress < 100 and not rospy.is_shutdown():
             # Update progress and get all the remaining data
-            progress, printingTimeLeft, timeElapsed, fileName, fileSize = messenger.printingProgressTracking()
+            progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
             
             # Retrieving all data
             tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state = messenger.getprinterInfo()

@@ -59,9 +59,7 @@ def printingProgressTracking():
     # In bytes
     fileSize = response.json()['job']['file']['size']
     fileSize = str(fileSize)
-    #timeElapsed = timecounter.count()
-    timeElapsed = 0
-    return progress, printTimeLeft, timeElapsed, fileName, fileSize
+    return progress, printTimeLeft, fileName, fileSize
 
 
 def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled):
@@ -116,7 +114,6 @@ def checkBedHeating(bedTempA, bedTempT):
     else:
         isBedHeating = False
     return isBedHeating
-
 
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
