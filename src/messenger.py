@@ -6,7 +6,6 @@ http://docs.octoprint.org/en/master/api/index.html
 """
 
 import requests
-#import timecounter
 
 octoIP = "http://127.0.0.1"
 octoPort = ":5000"
@@ -64,6 +63,7 @@ def printingProgressTracking():
     timeElapsed = 0
     return progress, printTimeLeft, timeElapsed, fileName, fileSize
 
+
 def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled):
     """ Function that rates all the states from the printer and returns just one state to send xas a String
     to ROS. Short: encapsulates all states in one function. This function is expandable, you can add more 
@@ -88,6 +88,35 @@ def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint,
     #elif:
     #    finalState = "Busy_Red"
     return finalState
+
+
+def checkToolHeating(tool0TempA, tool0TempT):
+    """ Functions to check if the extruder is heating. This will be sent to rateState function to rate the atual state of the printer. """
+    isToolHeating = False
+    diff2 = tool0TempT - tool0TempA
+    #print "Temperature difference from Tool:", diff2
+    if diff2 > 0.0:
+        isToolHeating = True
+    elif diff2 <= 0.0:
+        isToolHeating = False
+    else:
+        isToolHeating = False
+    return isToolHeating
+
+
+def checkBedHeating(bedTempA, bedTempT):
+    """ Functions to check if the bed is heating. This will be sent to rateState function to rate the atual state of the printer. """
+    isBedHeating = False
+    diff1 = bedTempT - bedTempA
+    #print "Temperature difference from Bed:", diff1
+    if diff1 > 0.0:
+        isBedHeating = True
+    elif diff1 <= 0.0:
+        isBedHeating = False
+    else:
+        isBedHeating = False
+    return isBedHeating
+
 
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
@@ -114,33 +143,6 @@ def getprinterInfo():
     isBedHeating = checkBedHeating(bedTempA, bedTempT)
     state = rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled)
     return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state
-
-def checkBedHeating(bedTempA, bedTempT):
-    """ Functions to check if the bed is heating. This will be sent to rateState function to rate the atual state of the printer. """
-    isBedHeating = False
-    diff1 = bedTempT - bedTempA
-    #print "Temperature difference from Bed:", diff1
-    if diff1 > 0.0:
-        isBedHeating = True
-    elif diff1 <= 0.0:
-        isBedHeating = False
-    else:
-        isBedHeating = False
-    return isBedHeating
-
-
-def checkToolHeating(tool0TempA, tool0TempT):
-    """ Functions to check if the extruder is heating. This will be sent to rateState function to rate the atual state of the printer. """
-    isToolHeating = False
-    diff2 = tool0TempT - tool0TempA
-    #print "Temperature difference from Tool:", diff2
-    if diff2 > 0.0:
-        isToolHeating = True
-    elif diff2 <= 0.0:
-        isToolHeating = False
-    else:
-        isToolHeating = False
-    return isToolHeating
     
 
 def _url(path):
