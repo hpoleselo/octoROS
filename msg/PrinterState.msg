@@ -10,7 +10,7 @@ float32 temp_tool2_actual
 float32 temp_bed_actual
 
 # data from the file to be printed
-string file_size
+int32 file_size
 string file_name
 string printer3d_state
 float32 progress

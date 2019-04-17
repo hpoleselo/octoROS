@@ -58,7 +58,6 @@ def printingProgressTracking():
     fileName = str(fileName)
     # In bytes
     fileSize = response.json()['job']['file']['size']
-    fileSize = str(fileSize)
     return progress, printTimeLeft, fileName, fileSize
 
 

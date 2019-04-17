@@ -69,7 +69,7 @@ class RosInterface(object):
         while progress < 100 and not rospy.is_shutdown():
             # Update progress and get all the remaining data
             progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
-            
+    
             # Retrieving all data
             tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state = messenger.getprinterInfo()
             date_time = self.getDateTime()
