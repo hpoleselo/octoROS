@@ -32,6 +32,7 @@ class RosInterface(object):
         self.print_pub.publish("Connection succeeded")
 
     def getDateTime(self):
+        """ Get the actual date and time. """
         date_time = datetime.datetime.now()
         # Convert it to string to insert in our message
         date_time = str(date_time)
@@ -39,21 +40,23 @@ class RosInterface(object):
 
     def countTimeStamp(self):
         """ Currently implementing our own time stamp to count the messages that are being sent.
-        TODO: implement it using Header()"""
+        TODO: implement it using Header() and seq"""
         global counter
-        #print "dentro do timestamp", counter
         counter += 1
         return int(counter)
 
     def countTime(self, ts):
+        """ Takes the timestamp and 'converts' it to count the time since the printer has started to print.  """
         global counter
-        print "dentro do timer", counter
-        if counter < 0:
+        if counter >= 2:
+            # Transform to the actual time
+            ts = ts - 1
             timeInSeconds = ts*10
-            print timeInSeconds
             return timeInSeconds
 
     def printPartAndGetStatus(self, modelName):
+        """ Sends command to print the wished part and sends all the data retrieved from the printer to ROS """
+
         printing = messenger.printModel(modelName)
         if printing.status_code != 204:
             pass
@@ -64,13 +67,14 @@ class RosInterface(object):
         progress, _, _, _, _ = messenger.printingProgressTracking()
         rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
         while progress < 100 and not rospy.is_shutdown():
+            # Update progress and get all the remaining data
             progress, printingTimeLeft, timeElapsed, fileName, fileSize = messenger.printingProgressTracking()
+            
             # Retrieving all data
             tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state = messenger.getprinterInfo()
-            # mudar nome
             date_time = self.getDateTime()
             ts = self.countTimeStamp()
-            #timeElapsed = self.countTime(ts)
+            timeElapsed = self.countTime(ts)
             
 
 
@@ -89,14 +93,15 @@ class RosInterface(object):
             pstate.file_size = fileSize
             pstate.printer3d_state = state
             pstate.progress = progress
-            #pstate.time_elapsed = timeElapsed
+            pstate.time_elapsed = timeElapsed
             pstate.time_left = printingTimeLeft
             pstate.temp_tool1_goal = tool0TempT
             pstate.temp_tool2_goal = tool1TempT
             pstate.temp_bed_goal = bedTempT
             self.print_pub.publish(pstate)
             self.rate.sleep()
-        self.print_pub.publish("Successful print")
+
+        rospy.loginfo("Sucessful printing.")
         self.printFinished_pub.publish(True)
 
 
