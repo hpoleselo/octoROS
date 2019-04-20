@@ -81,16 +81,20 @@ Go to another terminal and
 The output should be like this:
 ```
 ricky@c-137:~/wspace_ros/src/octo_ros/src$ rostopic echo /printer3d
-temp_tool1_actual: 31.0
-temp_tool2_actual: 30.0
-temp_bed_actual: 26.0
-file_name: "Teste.gcode"
-printer3d_state: "Available and ready for Printing"
-progress: 0.0
-estimated_time: 7.26000022888
+timestamp: 23
+date_time: "2019-04-17 18:10:10.608935"
+temp_tool1_actual: 32.0
+temp_tool2_actual: 32.0
+temp_bed_actual: 87.0
+file_size: 126475
+file_name: "testfile.gcode"
+printer3d_state: "Bed heating"
+progress: 1.43190348148
+time_left: 912.0
+time_elapsed: 220.0
 temp_tool1_goal: 0.0
 temp_tool2_goal: 0.0
-temp_bed_goal: 0.0
+temp_bed_goal: 110.0
 ---
 ```
 
