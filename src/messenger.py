@@ -9,7 +9,7 @@ import requests
 
 octoIP = "http://127.0.0.1"
 octoPort = ":5000"
-apiKey = "D53EF37275E14C8EA627A4E243E06538"
+apiKey = "63A30C9DD2D44F239C1ED9CA68963EA9"
 
 # json key with the API Key
 standardHeader = {'X-Api-Key': apiKey}
@@ -57,7 +57,7 @@ def printingProgressTracking():
     fileName = response.json()['job']['file']['name']
     fileName = str(fileName)
     # In bytes
-    fileSize = response.json()['job']['file']['size']
+    fileSize = response.json()['job']['file']['size']    
     return progress, printTimeLeft, fileName, fileSize
 
 
@@ -114,14 +114,25 @@ def checkBedHeating(bedTempA, bedTempT):
         isBedHeating = False
     return isBedHeating
 
+def checkTool1Availability(requestResponse):
+    """ Checks if there is more than one tool. If there's only one extruder, it returns 0 to both variables tool1TempA and tool1TempT. """
+    # TODO Add counter so when it reaches 2, it doesnt check for a second tool anymore...
+    try:
+        tool1TempA = requestResponse.json()['temperature']['tool1']['actual']
+        tool1TempT = requestResponse.json()['temperature']['tool1']['target']
+    except(KeyError):
+        print("1 Extruder found only.")
+        tool1TempA = 0
+        tool1TempT = 0
+        return tool1TempA, tool1TempT
+
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
 
     # Actual measurements
     tool0TempA = response.json()['temperature']['tool0']['actual']
-    tool1TempA = response.json()['temperature']['tool1']['actual']
     bedTempA = response.json()['temperature']['bed']['actual']
-    
+
     # Additional information besides what Daniel has made
     isPrinting = response.json()['state']['flags']['printing']
     isPaused = response.json()['state']['flags']['pausing']
@@ -131,8 +142,10 @@ def getprinterInfo():
     
     # Targets
     tool0TempT = response.json()['temperature']['tool0']['target']
-    tool1TempT = response.json()['temperature']['tool1']['target']
     bedTempT = response.json()['temperature']['bed']['target']
+
+    # Checks for a second tool, if available
+    tool1TempA, tool1TempT = checkTool1Availability(response)
 
     # Call functions to encapsulate all states in one
     isToolHeating = checkToolHeating(tool0TempA, tool0TempT)
@@ -140,6 +153,13 @@ def getprinterInfo():
     state = rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled)
     return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state
     
+def checkFilesSD():
+    # Implementar funcao pra ver arquivos disponiveis no SD CARD
+    # a tentativa eh imprimir usando o x3g pois inserimos o cartao com o x3g 
+    # PRIMEIRO TENTAR DIRETO IMPRIMINDO DA INTERFACE COM X3G e ver no que da
+    pass
+
+
 
 def _url(path):
     """ Function to pass the URL """
