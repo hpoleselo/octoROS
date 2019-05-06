@@ -30,7 +30,7 @@ And then calling the setup file again to install all the dependencies but ignori
 
 **Paste the copied API Key on the 13th line of** ``` messenger.py ```
 
-In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, which will enable us to send gcode to octoprint, which will take care of the conversion to x3g. In order to do that do the following:
+In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, because OctoPrint doesn't support the x3g format, only gcode. GPX will take care of the conversion from gcode to x3g. Do the following:
 1. In the octoPrint home screen go to configurations/Plugin manager/Get More
 2. Search for GPX and click install 
 3. After GPX is installed, make sure to check in the plugin's list if the GPX plugin is enabled
