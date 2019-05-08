@@ -3,9 +3,13 @@ This projects aims to be a bridge between 3D Printers and ROS.
 It uses OctoPrint to control the printer, and get the info that is sent to ROS topics. 
 
 
-## Getting Started
+## Tested Environment
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+- Makerbot Replicator 2X (Firmware 7.6)
+- Ubuntu LTS 16.04.06 (Xenial Xerus)
+- ROS Kinetic
+- Python 2.7
+- Octoprint 1.3.10
 
 ## Prerequisites
 
@@ -100,7 +104,40 @@ temp_bed_goal: 110.0
 
 So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
+## Example (Makerbot)
+A testing file ``` testfile.gcode ``` for the Makerbot Replicator 2X is provided in order to execute this example. The file is located on the folder ```src```.
 
+1. ```Connect the printer to your computer via USB cable.```
+
+Supposing that the installation steps have been followed correctly we open up a new terminal and:
+
+2.  ```$ octoprint serve```
+
+**Now we should see the screen of the octoprint on your browser by acessing the adress ```http://localhost:5000/``` , you should see the following screen**:
+![Screenshot](/screenshots/pic1.png) 
+
+3. ``` Upload the gcode file you want to print, in our case, testfile.gcode to the Octoprint Web Interface in the following section: ```
+
+![Screenshot](/screenshots/pic2.png) 
+
+Open up a new terminal and:
+
+4. ``` $ roslaunch octo_ros connect_to_printer.launch ```
+
+Since the gcode is on the same folder as the script that interfaces Octoprint and in the script ``` octoros.py ``` on the line 17th the name of the file
+to be printed matches the actual file, then it's going to send the file automatically when we execute the command in step ```4```.
+
+You should see something like this:
+
+![Screenshot](/screenshots/pic3.png) 
+
+If we wish to check the stats of the printer, we open up a new terminal and give the following command:
+
+5. ``` $ rostopic echo /printer3d ```
+
+What you will see is the stats like the picture below:
+
+![Screenshot](/screenshots/pic4.png) 
 
 ## Authors
 
