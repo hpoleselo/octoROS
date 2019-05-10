@@ -14,7 +14,7 @@ from octo_ros.msg import PrinterState
 import messenger
 
 counter = 0
-fileToPrint = 'testfile.gcode'
+fileToPrint = 'test_direita.gcode'
 
 class RosInterface(object):
     def __init__(self):
@@ -29,7 +29,7 @@ class RosInterface(object):
         if connection.status_code != 204:
             # TODO change all exceptions to the right ones
             raise Exception('Could not connect to printer, error code: {}'.format(connection.status_code))
-        self.print_pub.publish("Connection succeeded")
+        rospy.loginfo("Connection succeeded")
 
     def getDateTime(self):
         """ Get the actual date and time. """
@@ -56,7 +56,7 @@ class RosInterface(object):
 
     def printPartAndGetStatus(self, modelName):
         """ Sends command to print the wished part and sends all the data retrieved from the printer to ROS """
-
+        
         printing = messenger.printModel(modelName)
         if printing.status_code != 204:
             pass

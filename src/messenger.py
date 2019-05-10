@@ -14,16 +14,14 @@ apiKey = "63A30C9DD2D44F239C1ED9CA68963EA9"
 # json key with the API Key
 standardHeader = {'X-Api-Key': apiKey}
 
+# Second extruder checker.
+secondExtruderExists = None
+
 # Connection handling
 def connectToPrinter():
     connectionData = {"command": "connect", "port": "/dev/ttyACM0", "baudrate": 115200, "printerProfile": "_default",
                       "save": True, "autoconnect": True}
     return requests.post(_url("connection"), json=connectionData, headers=standardHeader, timeout=5)
-
-
-# File operations
-def modelSelection():
-    pass
 
 # --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
 # --- FUNCTIONS TO SEND TO THE PRINTER --- 
@@ -45,6 +43,20 @@ def resumePrinting():
     jsonData = {'command':'pause', 'action':'resume'}
     return requests.post(_url('job'), headers=standardHeader, timeout=5, json=jsonData)
 
+def checkFilesSD():
+    """ Check all the files on the Octoprint Server and on the SD Card. """
+    files = []
+    response = requests.get(_url('files'), headers=standardHeader, timeout=5)
+    numberOfFiles = len(response.json()['files'])
+
+    for i in range(0,numberOfFiles):
+        try:
+            files.append(response.json()['files'][i]['name'])
+        except(IndexError):
+            print ("The list has been iterated.")
+
+def modelSelection():
+    pass
 
 # --- RETRIEVING INFORMATION FROM THE PRINTING PROCESS ---
 # --- FUNCTIONS TO SEND TO THE PRINTER --- 
@@ -114,20 +126,22 @@ def checkBedHeating(bedTempA, bedTempT):
         isBedHeating = False
     return isBedHeating
 
-def checkTool1Availability(requestResponse):
+def checkTool1Availability():
     """ Checks if there is more than one tool. If there's only one extruder, it returns 0 to both variables tool1TempA and tool1TempT. """
-    # TODO Add counter so when it reaches 2, it doesnt check for a second tool anymore...
+    response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
     try:
-        tool1TempA = requestResponse.json()['temperature']['tool1']['actual']
-        tool1TempT = requestResponse.json()['temperature']['tool1']['target']
+        tool1TempA = response.json()['temperature']['tool1']['actual']
+        tool1TempT = response.json()['temperature']['tool1']['target']
+        isFound = True
     except(KeyError):
-        print("1 Extruder found only.")
         tool1TempA = 0
         tool1TempT = 0
-        return tool1TempA, tool1TempT
+        isFound = False
+    return tool1TempA, tool1TempT, isFound
 
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
+    global secondExtruderExists
 
     # Actual measurements
     tool0TempA = response.json()['temperature']['tool0']['actual']
@@ -138,28 +152,27 @@ def getprinterInfo():
     isPaused = response.json()['state']['flags']['pausing']
     isReadyToPrint = response.json()['state']['flags']['operational']
     isCancelled = response.json()['state']['flags']['cancelling']
-    #print response.json()['state']
     
     # Targets
     tool0TempT = response.json()['temperature']['tool0']['target']
     bedTempT = response.json()['temperature']['bed']['target']
 
-    # Checks for a second tool, if available
-    tool1TempA, tool1TempT = checkTool1Availability(response)
+    # Checks for a second tool, if available gets the data from it
+    if (secondExtruderExists == None):
+        tool1TempA, tool1TempT, isFound = checkTool1Availability()
+        print ("Found a second tool.")
+        # Updates the state of secondExtruderExists so it doesn't check anymore
+        secondExtruderExists = isFound
+    elif (secondExtruderExists):
+        tool1TempA = response.json()['temperature']['tool1']['actual']
+        tool1TempT = response.json()['temperature']['tool1']['target']
+
 
     # Call functions to encapsulate all states in one
     isToolHeating = checkToolHeating(tool0TempA, tool0TempT)
     isBedHeating = checkBedHeating(bedTempA, bedTempT)
     state = rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled)
     return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state
-    
-def checkFilesSD():
-    # Implementar funcao pra ver arquivos disponiveis no SD CARD
-    # a tentativa eh imprimir usando o x3g pois inserimos o cartao com o x3g 
-    # PRIMEIRO TENTAR DIRETO IMPRIMINDO DA INTERFACE COM X3G e ver no que da
-    pass
-
-
 
 def _url(path):
     """ Function to pass the URL """
