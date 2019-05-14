@@ -13,7 +13,17 @@ It uses OctoPrint to control the printer, and get the info that is sent to ROS t
 
 ## Prerequisites
 
-First you'll need to install OctoPrint, the instructions are available at https://github.com/foosel/OctoPrint. But the easiest way that I see and in order to integrate the application with ROS is with the following instructions:
+Make sure you have Python 2.7 along with pip installed, if not so:
+
+```$ wget https://bootstrap.pypa.io/get-pip.py```
+
+```$ sudo python2.7 get-pip.py```
+
+Since OctoROS relies on the ```requests``` package, it's better to install it in forehandl:
+
+```$ sudo pip2.7 install requests```
+
+Now we can install OctoPrint, the detailed instructions are available at https://github.com/foosel/OctoPrint. But the easiest way that I see and in order to integrate the application with ROS is with the following instructions:
 
 1. Checkout OctoPrint:  ```$ git clone https://github.com/foosel/OctoPrint.git```
 2. Change into the OctoPrint folder: ```$ cd OctoPrint```
