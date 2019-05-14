@@ -1,7 +1,7 @@
 # -- ACTUAL DATA --
 
 # timestamp for logging
-int8 timestamp
+int64 timestamp
 string date_time
 
 # data from the 3D Printer
