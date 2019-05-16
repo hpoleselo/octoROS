@@ -14,7 +14,7 @@ int32 file_size
 string file_name
 string printer3d_state
 float32 progress
-float32 time_left
+int64 time_left
 float32 time_elapsed
 
 # -- GOAL DATA --

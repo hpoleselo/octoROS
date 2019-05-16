@@ -64,8 +64,17 @@ def modelSelection():
 def printingProgressTracking():
     response = requests.get(_url('job'), headers=standardHeader, timeout=5)
     progress = response.json()['progress']['completion']
+    
+    # Sometimes progress returns None, so we treat that.
+    if progress == None:
+        progress = 0.0
+
     # In seconds! 
     printTimeLeft = response.json()['progress']['printTimeLeft']
+
+    if printTimeLeft == None:
+        printTimeLeft = 0
+
     fileName = response.json()['job']['file']['name']
     fileName = str(fileName)
     # In bytes

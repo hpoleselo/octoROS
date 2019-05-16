@@ -14,7 +14,7 @@ from octo_ros.msg import PrinterState
 import messenger
 
 counter = 0
-fileToPrint = 'test_direita.gcode'
+fileToPrint = 'tag2.gcode'
 
 class RosInterface(object):
     def __init__(self):
@@ -75,8 +75,6 @@ class RosInterface(object):
             date_time = self.getDateTime()
             ts = self.countTimeStamp()
             timeElapsed = self.countTime(ts)
-            
-
 
             # If the printer is not printing something then it returns None
             if progress == None:
