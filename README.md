@@ -19,7 +19,7 @@ Make sure you have Python 2.7 along with pip installed, if not so:
 
 ```$ sudo python2.7 get-pip.py```
 
-Since OctoROS relies on the ```requests``` package, it's better to install it in forehandl:
+Since OctoROS relies on the ```requests``` package, it's better to install it in forehand:
 
 ```$ sudo pip2.7 install requests```
 
@@ -36,7 +36,11 @@ PS: In case you encountered a conflict error with PyYAML on step ```3.``` make s
 
  ```$ sudo rm -rf /usr/local/lib/python2.7/dist-packages/yaml ```
 
-And then calling the setup file again to install all the dependencies but ignoring PyYAML (this is necessary because PyYAML is usually not completely deleted.)
+ and
+
+```$ sudo rm -rf /usr/lib/python2.7/dist-packages/yaml ```
+
+And then calling the setup file again to install all the dependencies but ignoring PyYAML (this is necessary because PyYAML is usually not completely deleted.) **Note that this would work for any other package from Python that is conflicting with the installation, i.e we could replace PyYAML for the package causing you trouble.**
 
  ```$ sudo pip2.7 install . --ignore-installed ${PyYAML} ``` 
 
