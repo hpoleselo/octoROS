@@ -14,7 +14,7 @@ from octo_ros.msg import PrinterState
 import messenger
 
 counter = 0
-fileToPrint = 'tag2.gcode'
+fileToPrint = 'testfile.gcode'
 
 class RosInterface(object):
     def __init__(self):
@@ -52,11 +52,10 @@ class RosInterface(object):
             # Transform to the actual time
             ts = ts - 1
             timeInSeconds = ts*10
-            return timeInSeconds
+            return int(timeInSeconds)
 
     def printPartAndGetStatus(self, modelName):
         """ Sends command to print the wished part and sends all the data retrieved from the printer to ROS """
-        
         printing = messenger.printModel(modelName)
         if printing.status_code != 204:
             pass
@@ -71,15 +70,13 @@ class RosInterface(object):
             progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
     
             # Retrieving all data
-            tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state = messenger.getprinterInfo()
+            bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
             date_time = self.getDateTime()
             ts = self.countTimeStamp()
             timeElapsed = self.countTime(ts)
+            if timeElapsed == None:
+                timeElapsed = 0
 
-            # If the printer is not printing something then it returns None
-            if progress == None:
-                progress = 0.0
-            
             # Encapsulate all the data
             pstate = PrinterState()
             pstate.timestamp = ts

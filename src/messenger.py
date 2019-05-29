@@ -17,14 +17,13 @@ standardHeader = {'X-Api-Key': apiKey}
 # Second extruder checker.
 secondExtruderExists = None
 
-# Connection handling
 def connectToPrinter():
+    # Connection handling
     connectionData = {"command": "connect", "port": "/dev/ttyACM0", "baudrate": 115200, "printerProfile": "_default",
                       "save": True, "autoconnect": True}
     return requests.post(_url("connection"), json=connectionData, headers=standardHeader, timeout=5)
 
 # --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
-# --- FUNCTIONS TO SEND TO THE PRINTER --- 
 
 def printModel(modelName):
     printData = {'command': 'select', 'print': True}
@@ -44,7 +43,7 @@ def resumePrinting():
     return requests.post(_url('job'), headers=standardHeader, timeout=5, json=jsonData)
 
 def checkFilesSD():
-    """ Check all the files on the Octoprint Server and on the SD Card. """
+    #Check all the files on the Octoprint Server and on the SD Card.
     files = []
     response = requests.get(_url('files'), headers=standardHeader, timeout=5)
     numberOfFiles = len(response.json()['files'])
@@ -58,26 +57,28 @@ def checkFilesSD():
 def modelSelection():
     pass
 
-# --- RETRIEVING INFORMATION FROM THE PRINTING PROCESS ---
-# --- FUNCTIONS TO SEND TO THE PRINTER --- 
+def checkNoneFloat(data):
+    # Function to check if the retrieved data is None
+    if data == None:
+        data = 0.0
+    return data
+
+def checkNoneInteger(data):
+    # Function to check if the retrieved data is None
+    if data == None:
+        data = 0
+    return data
 
 def printingProgressTracking():
     response = requests.get(_url('job'), headers=standardHeader, timeout=5)
     progress = response.json()['progress']['completion']
-    
-    # Sometimes progress returns None, so we treat that.
-    if progress == None:
-        progress = 0.0
+    progress = checkNoneFloat(progress)
 
-    # In seconds! 
     printTimeLeft = response.json()['progress']['printTimeLeft']
-
-    if printTimeLeft == None:
-        printTimeLeft = 0
+    printTimeLeft = checkNoneInteger(printTimeLeft)
 
     fileName = response.json()['job']['file']['name']
     fileName = str(fileName)
-    # In bytes
     fileSize = response.json()['job']['file']['size']    
     return progress, printTimeLeft, fileName, fileSize
 
@@ -143,8 +144,8 @@ def checkTool1Availability():
         tool1TempT = response.json()['temperature']['tool1']['target']
         isFound = True
     except(KeyError):
-        tool1TempA = 0
-        tool1TempT = 0
+        tool1TempA = 0.0
+        tool1TempT = 0.0
         isFound = False
     return tool1TempA, tool1TempT, isFound
 
@@ -152,36 +153,47 @@ def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
     global secondExtruderExists
 
-    # Actual measurements
+    # Retrieves the temperature of the main extruder and bed
     tool0TempA = response.json()['temperature']['tool0']['actual']
     bedTempA = response.json()['temperature']['bed']['actual']
+    tool0TempT = response.json()['temperature']['tool0']['target']
+    bedTempT = response.json()['temperature']['bed']['target']
+
+    # Check all the received data if they are None
+    tool0TempA = checkNoneFloat(tool0TempA)
+    tool0TempT = checkNoneFloat(tool0TempT)
+    bedTempA = checkNoneFloat(bedTempA)
+    bedTempT = checkNoneFloat(bedTempT)
 
     # Additional information besides what Daniel has made
     isPrinting = response.json()['state']['flags']['printing']
     isPaused = response.json()['state']['flags']['pausing']
     isReadyToPrint = response.json()['state']['flags']['operational']
     isCancelled = response.json()['state']['flags']['cancelling']
-    
-    # Targets
-    tool0TempT = response.json()['temperature']['tool0']['target']
-    bedTempT = response.json()['temperature']['bed']['target']
 
     # Checks for a second tool, if available gets the data from it
     if (secondExtruderExists == None):
+        print("[INFO]: Checking for a second extruder...")
         tool1TempA, tool1TempT, isFound = checkTool1Availability()
-        print ("Found a second tool.")
         # Updates the state of secondExtruderExists so it doesn't check anymore
         secondExtruderExists = isFound
+        if secondExtruderExists == True:
+            print("[INFO]: Found a second extruder.")
+        elif not (secondExtruderExists):
+            print("[INFO]: Second extruder not found.")
     elif (secondExtruderExists):
         tool1TempA = response.json()['temperature']['tool1']['actual']
         tool1TempT = response.json()['temperature']['tool1']['target']
+    elif not (secondExtruderExists):
+        tool1TempA = 0.0
+        tool1TempT = 0.0
 
 
     # Call functions to encapsulate all states in one
     isToolHeating = checkToolHeating(tool0TempA, tool0TempT)
     isBedHeating = checkBedHeating(bedTempA, bedTempT)
     state = rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled)
-    return tool0TempA, tool1TempA, bedTempA, tool0TempT, tool1TempT, bedTempT, state
+    return bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT
 
 def _url(path):
     """ Function to pass the URL """
