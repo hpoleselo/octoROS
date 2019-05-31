@@ -1,0 +1,39 @@
+timestamp: 1
+date_time: "2019-04-01 15:25:58.549422"
+temp_tool1_actual: 30.0
+temp_tool2_actual: 30.0
+temp_bed_actual: 27.0
+file_name: "Teste.gcode"
+printer3d_state: "Available and ready for Printing"
+progress: 0.0
+estimated_time: 7.26000022888
+temp_tool1_goal: 0.0
+temp_tool2_goal: 0.0
+temp_bed_goal: 0.0
+%%% 
+timestamp: 2
+date_time: "2019-04-01 15:26:08.540719"
+temp_tool1_actual: 30.0
+temp_tool2_actual: 31.0
+temp_bed_actual: 27.0
+file_name: "Teste.gcode"
+printer3d_state: "Available and ready for Printing"
+progress: 0.0
+estimated_time: 7.26000022888
+temp_tool1_goal: 0.0
+temp_tool2_goal: 0.0
+temp_bed_goal: 0.0
+%%% 
+timestamp: 3
+date_time: "2019-04-01 15:26:18.539569"
+temp_tool1_actual: 30.0
+temp_tool2_actual: 30.0
+temp_bed_actual: 27.0
+file_name: "Teste.gcode"
+printer3d_state: "Available and ready for Printing"
+progress: 0.0
+estimated_time: 7.26000022888
+temp_tool1_goal: 0.0
+temp_tool2_goal: 0.0
+temp_bed_goal: 0.0
+%%% 
