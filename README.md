@@ -5,7 +5,7 @@ It uses OctoPrint to control the printer, and get the info that is sent to ROS t
 
 ## Tested Environment
 
-- Makerbot Replicator 2X (Firmware 7.6)
+- Makerbot Replicator 2X (Firmware 7.6), Ultimaker 2+ and GtMax3D
 - Ubuntu LTS 16.04.06 (Xenial Xerus)
 - ROS Kinetic
 - Python 2.7
@@ -27,7 +27,7 @@ Now we can install OctoPrint, the detailed instructions are available at https:/
 
 1. Checkout OctoPrint:  ```$ git clone https://github.com/foosel/OctoPrint.git```
 2. Change into the OctoPrint folder: ```$ cd OctoPrint```
-3. Request pip to run the setup file, i.e install all the necessary dependencies: ```$ sudo pip2.7 install .```
+3. Request pip to run the setup file, i.e install all the necessary dependencies: ```$ sudo pip2.7 install .``` or ``` $  sudo pip2 install . ```
 4. After installing OctoPrint, you should run it using: ```$ octoprint serve```   
 5. Now you should verify your installation opening a web browser and going to http://localhost:5000
 6. If everything went right you should see the OctoPrint home screen  
@@ -46,7 +46,7 @@ And then calling the setup file again to install all the dependencies but ignori
 
 **_By entering the OctoPrint home screen for the first time you should setup your 3D Printer using the wizard from Octoprint, make sure to setup it correctly._** Don't forget to include the baudrate from your 3D Printer and enable the API Key **(respectively copying it)**.
 
-**Paste the copied API Key on the 13th line of** ``` messenger.py ```
+**Paste the copied API Key on the 12th line of** ``` messenger.py ```
 
 In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, because OctoPrint doesn't support the x3g format, only gcode. GPX will take care of the conversion from gcode to x3g. Do the following:
 1. In the octoPrint home screen go to configurations/Plugin manager/Get More
