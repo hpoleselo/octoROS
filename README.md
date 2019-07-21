@@ -46,7 +46,7 @@ And then calling the setup file again to install all the dependencies but ignori
 
 **_By entering the OctoPrint home screen for the first time you should setup your 3D Printer using the wizard from Octoprint, make sure to setup it correctly._** Don't forget to include the baudrate from your 3D Printer and enable the API Key **(respectively copying it)**.
 
-**Paste the copied API Key on the 12th line of** ``` messenger.py ```
+**Paste the copied API Key on the 13th line of** ``` messenger.py ```
 
 In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, because OctoPrint doesn't support the x3g format, only gcode. GPX will take care of the conversion from gcode to x3g. Do the following:
 1. In the octoPrint home screen go to configurations/Plugin manager/Get More
@@ -80,10 +80,28 @@ Make ``` octoROS.py ``` executable so ROS can identify it:
 
 ``` $ chmod +x octoROS.py ```
 
-## Usage
-In order to use it, you need to have your octoprint server running, have a model uploaded to it, **changing the file name in the 16th line to the uploaded file name** and then run the launch file: 
+Set the command as default so we can easily give the command to print any part:
 
-``` $ roslaunch octo_ros connect_to_printer.launch ```
+``` $ cd ~/ ```
+
+``` $ echo PATH=$PATH:~/catkin_ws/src/octoROS/src >> .bashrc  ```
+
+Add small function to open the port and run the OctoPrint server at once:
+
+``` $ cd ~/ ```
+
+``` $ echo "run_octoprint() { sudo chmod +666 /dev/ttyACM0 ; octoprint serve ; }" >> .bashrc  ```
+
+## Usage
+In order to use OctoROS, you need to have your octoprint server running, have the wished model uploaded to it and located on ``` /src ``` folder from OctoROS:
+
+First run the Octoprint server along with opening the port for the printer (MAKE SURE THE PRINTER IS CONNECTED TO THE COMPUTER!)
+
+``` $ run_octoprint ```
+
+Open up another terminal and send the model you want to print with the following command:
+
+``` $ print_file.sh YOURMODEL.gcode ```
 
 The output should be like this:
 ``` 
