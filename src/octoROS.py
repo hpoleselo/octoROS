@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 
-""" octoROS - integrating octoprint with ROS, so it's possible to control your 3d printer from your robot
-This library is based in the octoprint api, more info can be found here:
+""" octoROS - integrating octoprint with ROS, so it's possible to control your 3D printer from your robot
+This library is based in the Octoprint API, more info can be found here:
 http://docs.octoprint.org/en/master/api/index.html
 """
 
+import os
 import sys
 import datetime
 import rospy
 from std_msgs.msg import Bool, String
 from octo_ros.msg import PrinterState
-
 import messenger
 
 counter = 0
-fileToPrint = 'testfile.gcode'
 
 class RosInterface(object):
     def __init__(self):
@@ -22,19 +21,41 @@ class RosInterface(object):
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
         self.rate = rospy.Rate(0.1)  # 0.1 hz
         rospy.loginfo("---- OctoROS Initialized! ----")
+        rospy.loginfo("---- Searching for requested file ----")
+        self.fileToPrint = self.getFile()
+        self.fileToPrint = self.searchFile(self.fileToPrint)
+        if self.fileToPrint != -1:
+            rospy.loginfo("---- Sending requested file to OctoPrint ------")
+            self.printPartAndGetStatus(self.fileToPrint)
+        else:
+            rospy.logwarn("Could not send the file to the printer, shutting down...")
 
-    def performConnection(self):
-        rospy.loginfo("Trying to connect to the 3D Printer...")
-        connection = messenger.connectToPrinter()
-        if connection.status_code != 204:
-            # TODO change all exceptions to the right ones
-            raise Exception('Could not connect to printer, error code: {}'.format(connection.status_code))
-        rospy.loginfo("Connection succeeded")
+    def getFile(self):
+        try:
+            self.fileToPrint = rospy.get_param('/printerWatcher/file_name')
+            return self.fileToPrint
+        except(NameError):
+            print("Didn't receive the print file.") 
+
+    def searchFile(self, fileToPrint):
+        files = os.listdir(".")
+        gcode_files = []
+        for file in files:
+            if file == self.fileToPrint:
+                return self.fileToPrint
+            elif file.endswith('.gcode'):
+                gcode_files.append(file)
+        if file != self.fileToPrint: 
+            print("[WARN] Requested file: ") + self.fileToPrint + " not found in the package directory."
+            rospy.loginfo("Files with the extension .gcode that have been found: ")
+            for i in range(len(gcode_files)):
+                print gcode_files[i]
+            # -1 is a flag for not founding any file with the given name.
+            return -1
 
     def getDateTime(self):
         """ Get the actual date and time. """
         date_time = datetime.datetime.now()
-        # Convert it to string to insert in our message
         date_time = str(date_time)
         return date_time
 
@@ -54,13 +75,16 @@ class RosInterface(object):
             timeInSeconds = ts*10
             return int(timeInSeconds)
 
-    def printPartAndGetStatus(self, modelName):
+    def printPartAndGetStatus(self, fileToPrint):
         """ Sends command to print the wished part and sends all the data retrieved from the printer to ROS """
-        printing = messenger.printModel(modelName)
-        if printing.status_code != 204:
-            pass
-            raise Exception('Could not print, status code: {}'.format(printing.status_code))
-        rospy.loginfo("Starting to print model {}".format(modelName))
+        try:
+            printing = messenger.printModel(fileToPrint)
+                #check for the port enable dev ttyACM0
+        except(AttributeError):
+                sys.exit()
+                rospy.loginfo("Printer not connected to the OctoPrint server.")
+                rospy.is_shutdown()
+        rospy.loginfo("Starting to print model..") #TODO ADD VARIABLE TO BE PRINTED
         
         # Temporary, but disregarding some variables
         progress, _, _, _ = messenger.printingProgressTracking()
@@ -104,7 +128,6 @@ def main(args):
     # ROS was not catching interrupt exceptions, so I had to disable signals and use the KeyboardInterrupt exception
     rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
     interf = RosInterface()
-    interf.printPartAndGetStatus(fileToPrint)
 
 
 if __name__ == '__main__':

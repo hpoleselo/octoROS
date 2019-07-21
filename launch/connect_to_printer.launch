@@ -1,9 +1,15 @@
 <launch>
-    <!-- Switch to commute if using the logging for a txt file. -->
-    <arg name="generate_logfile" default="False"/>
+
+    <arg name="generate_logfile" default="False"/>  <!-- Switch to commute if using the logging for a txt file. -->
+    <arg name="arg1"/>  <!-- Parameter to get the file from the user -->
 
     <!-- Run our interface with the 3DPrinter -->
-    <node pkg="octo_ros" type="octoROS.py" name="printerWatcher" output="screen"/>
+    <node pkg="octo_ros" type="octoROS.py" name="printerWatcher" output="screen" args="$(arg arg1)" cwd="node" >
+         
+         <!-- Sends the file to the rosparam server, our Python script will retrieve it. -->
+         <param name="file_name" value="$(arg arg1)" />
+    </node>
+
 
     <!-- If the generate_logfile is True then we run our node! -->
     <group if="$(arg generate_logfile)">
@@ -11,4 +17,5 @@
         <!-- Added cwd parameter in order to our program to write the file locally on the node. -->
         <node pkg="octo_ros" type="save_log.py" name="logSaver"  output="screen" cwd="node"/>
     </group>
+
 </launch>

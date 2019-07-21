@@ -6,6 +6,7 @@ http://docs.octoprint.org/en/master/api/index.html
 """
 
 import requests
+import sys
 
 octoIP = "http://127.0.0.1"
 octoPort = ":5000"
@@ -26,9 +27,13 @@ def connectToPrinter():
 # --- SENDING COMMANDS TO THE PRINTER / JOB OPERATIONS ---
 
 def printModel(modelName):
-    printData = {'command': 'select', 'print': True}
-    url = _url('files/local/{}'.format(modelName))
-    return requests.post(url, json=printData, headers=standardHeader, timeout=5)
+    try:
+        printData = {'command': 'select', 'print': True}
+        url = _url('files/local/{}'.format(modelName))
+        return requests.post(url, json=printData, headers=standardHeader, timeout=5)
+    except(requests.exceptions.RequestException):
+        print("[ERROR] Not connected to OctoPrint Server. Check your connection with the Server!")
+        sys.exit()
 
 def cancelPrinting():
     jsonData = {'command':'cancel'}
@@ -152,6 +157,9 @@ def checkTool1Availability():
 def getprinterInfo():
     response = requests.get(_url('printer'), headers=standardHeader, timeout=5)
     global secondExtruderExists
+
+    #  O RETRIEVE SO DEVE SER DADO CASO ESTEJA TUDO OK, O QUE FALTA??
+
 
     # Retrieves the temperature of the main extruder and bed
     tool0TempA = response.json()['temperature']['tool0']['actual']
