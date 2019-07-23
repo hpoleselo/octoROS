@@ -105,9 +105,12 @@ Open up another terminal and send the model you want to print with the following
 
 The output should be like this:
 ``` 
-[INFO] [1553712847.912730]: Initialized!
-[INFO] [1553712847.920685]: Starting to print model testfile.gcode
-[INFO] [1553712847.928079]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.
+[INFO] [1563900881.544640]: ---- OctoROS Initialized! ----
+[INFO] [1563900881.545309]: ---- Searching for requested file ----
+[INFO] [1563900881.548957]: ---- Sending requested file to OctoPrint ------
+[INFO] [1563900881.594716]: Starting to print model..
+[INFO] [1563900881.608451]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.
+[INFO]: Checking for a second extruder...
 ```
 
 Go to another terminal and
@@ -116,18 +119,18 @@ Go to another terminal and
 
 The output should be like this:
 ```
-ricky@c-137:~/wspace_ros/src/octo_ros/src$ rostopic echo /printer3d
-timestamp: 23
-date_time: "2019-04-17 18:10:10.608935"
-temp_tool1_actual: 32.0
-temp_tool2_actual: 32.0
-temp_bed_actual: 87.0
-file_size: 126475
-file_name: "testfile.gcode"
+ricky@c-137:~$ rostopic echo /printer3d
+timestamp: 5
+date_time: "2019-07-23 13:55:21.690592"
+temp_tool1_actual: 25.0
+temp_tool2_actual: 26.0
+temp_bed_actual: 28.0
+file_size: 1052938
+file_name: "part2Rep2x.gcode"
 printer3d_state: "Bed heating"
-progress: 1.43190348148
-time_left: 912.0
-time_elapsed: 220.0
+progress: 0.169240728021
+time_left: 1059
+time_elapsed: 40
 temp_tool1_goal: 0.0
 temp_tool2_goal: 0.0
 temp_bed_goal: 110.0
