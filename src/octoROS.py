@@ -25,7 +25,7 @@ class RosInterface(object):
         self.fileToPrint = self.getFile()
         self.fileToPrint = self.searchFile(self.fileToPrint)
         if self.fileToPrint != -1:
-            rospy.loginfo("---- Sending requested file to OctoPrint ------")
+            rospy.loginfo("---- Sending requested file to OctoPrint ----")
             self.printPartAndGetStatus(self.fileToPrint)
         else:
             rospy.logwarn("Could not send the file to the printer, shutting down...")
@@ -35,7 +35,7 @@ class RosInterface(object):
             self.fileToPrint = rospy.get_param('/printerWatcher/file_name')
             return self.fileToPrint
         except(NameError):
-            print("Didn't receive the print file.") 
+            rospy.logerr("Didn't receive the print file.") 
 
     def searchFile(self, fileToPrint):
         files = os.listdir(".")
@@ -45,9 +45,10 @@ class RosInterface(object):
                 return self.fileToPrint
             elif file.endswith('.gcode'):
                 gcode_files.append(file)
-        if file != self.fileToPrint: 
-            print("[WARN] Requested file: ") + self.fileToPrint + " not found in the package directory."
-            rospy.loginfo("Files with the extension .gcode that have been found: ")
+        if file != self.fileToPrint:
+            notFoundString = "Requested file: %s not found in the package /src directory" %self.fileToPrint
+            rospy.logwarn(notFoundString)
+            rospy.logwarn("Files with the extension .gcode that have been found: ")
             for i in range(len(gcode_files)):
                 print gcode_files[i]
             # -1 is a flag for not founding any file with the given name.
@@ -79,13 +80,13 @@ class RosInterface(object):
         """ Sends command to print the wished part and sends all the data retrieved from the printer to ROS """
         try:
             printing = messenger.printModel(fileToPrint)
-                #check for the port enable dev ttyACM0
         except(AttributeError):
                 sys.exit()
                 rospy.loginfo("Printer not connected to the OctoPrint server.")
                 rospy.is_shutdown()
-        rospy.loginfo("Starting to print model..") #TODO ADD VARIABLE TO BE PRINTED
-        
+        bootString = "Starting to print model %s" %fileToPrint 
+        rospy.loginfo(bootString) 
+
         # Temporary, but disregarding some variables
         progress, _, _, _ = messenger.printingProgressTracking()
         rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
@@ -93,32 +94,37 @@ class RosInterface(object):
             # Update progress and get all the remaining data
             progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
     
-            # Retrieving all data
-            bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
-            date_time = self.getDateTime()
-            ts = self.countTimeStamp()
-            timeElapsed = self.countTime(ts)
-            if timeElapsed == None:
-                timeElapsed = 0
+            
+            try:
+                # Retrieving all data
+                bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
+                date_time = self.getDateTime()
+                ts = self.countTimeStamp()
+                timeElapsed = self.countTime(ts)
+                if timeElapsed == None:
+                    timeElapsed = 0
 
-            # Encapsulate all the data
-            pstate = PrinterState()
-            pstate.timestamp = ts
-            pstate.date_time = date_time
-            pstate.temp_tool1_actual = tool0TempA
-            pstate.temp_tool2_actual = tool1TempA
-            pstate.temp_bed_actual = bedTempA
-            pstate.file_name = fileName
-            pstate.file_size = fileSize
-            pstate.printer3d_state = state
-            pstate.progress = progress
-            pstate.time_elapsed = timeElapsed
-            pstate.time_left = printingTimeLeft
-            pstate.temp_tool1_goal = tool0TempT
-            pstate.temp_tool2_goal = tool1TempT
-            pstate.temp_bed_goal = bedTempT
-            self.print_pub.publish(pstate)
-            self.rate.sleep()
+                # Encapsulate all the data
+                pstate = PrinterState()
+                pstate.timestamp = ts
+                pstate.date_time = date_time
+                pstate.temp_tool1_actual = tool0TempA
+                pstate.temp_tool2_actual = tool1TempA
+                pstate.temp_bed_actual = bedTempA
+                pstate.file_name = fileName
+                pstate.file_size = fileSize
+                pstate.printer3d_state = state
+                pstate.progress = progress
+                pstate.time_elapsed = timeElapsed
+                pstate.time_left = printingTimeLeft
+                pstate.temp_tool1_goal = tool0TempT
+                pstate.temp_tool2_goal = tool1TempT
+                pstate.temp_bed_goal = bedTempT
+                self.print_pub.publish(pstate)
+                self.rate.sleep()
+            except(ValueError,UnboundLocalError):
+                rospy.logerr("Not connected to the printer, check if the USB cable is connected and if the port is enabled.")
+                sys.exit()
 
         rospy.loginfo("Sucessful printing.")
         self.printFinished_pub.publish(True)
