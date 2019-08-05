@@ -7,9 +7,9 @@ It uses OctoPrint to control the printer, and get the info that is sent to ROS t
 
 - Makerbot Replicator 2X (Firmware 7.6), Ultimaker 2+ and GtMax3D
 - Ubuntu LTS 16.04.06 (Xenial Xerus)
-- ROS Kinetic
+- ROS Kinetic   
 - Python 2.7
-- Octoprint 1.3.10
+- Octoprint 1.3.11
 
 ## Prerequisites
 
@@ -54,10 +54,6 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 3. After GPX is installed, make sure to check in the plugin's list if the GPX plugin is enabled
 4. Make sure to configure correctly in the GPX plugin all the settings for your 3D printer (machine, gcode flavor and other settings)
 
-PS: In case you encountered the error that the octoprint could not open your port, do the following:
-
- ```$ sudo chmod 666 /dev/ttyACM0 ``` 
-
 ## Installing
 
 This project should be run from source, to do so just go to your ROS workspace (supposing is called ``` catkin_ws ```):
@@ -80,7 +76,7 @@ Make ``` octoROS.py ``` executable so ROS can identify it:
 
 ``` $ chmod +x octoROS.py ```
 
-Set the command as default so we can easily give the command to print any part:
+Set the command to PATH so we can easily execute ``` print_file.sh``` from any directory:
 
 ``` $ cd ~/ ```
 
@@ -93,7 +89,7 @@ Add small function to open the port and run the OctoPrint server at once:
 ``` $ echo "run_octoprint() { sudo chmod +666 /dev/ttyACM0 ; octoprint serve ; }" >> .bashrc  ```
 
 ## Usage
-In order to use OctoROS, you need to have your octoprint server running, have the wished model uploaded to it and located on ``` /src ``` folder from OctoROS:
+In order to use OctoROS, you need to have your Octoprint server running, have the wished model uploaded to it and located on ``` /src ``` folder from OctoROS:
 
 First run the Octoprint server along with opening the port for the printer (MAKE SURE THE PRINTER IS CONNECTED TO THE COMPUTER!)
 
@@ -139,7 +135,7 @@ temp_bed_goal: 110.0
 
 So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
-## Example (Makerbot)
+## Example (Makerbot) [Deprecated]
 A testing file ``` testfile.gcode ``` for the Makerbot Replicator 2X is provided in order to execute this example. The file is located on the folder ```src```.
 
 1. ```Connect the printer to your computer via USB cable.```
