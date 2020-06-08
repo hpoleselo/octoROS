@@ -1,7 +1,5 @@
 # OctoROS
-This projects aims to be a bridge between 3D Printers and ROS. 
-It uses OctoPrint to control the printer, and get the info that is sent to ROS topics. 
-
+This projects aims to be a bridge between 3D Printers and ROS. It uses OctoPrint to control the printer and get the info that is sent to ROS topics. 
 
 ## Tested Environment
 
@@ -11,7 +9,7 @@ It uses OctoPrint to control the printer, and get the info that is sent to ROS t
 - Python 2.7
 - Octoprint 1.3.11
 
-## Prerequisites
+## Prerequisites + Initial Setup
 
 Make sure you have Python 2.7 along with pip installed, if not so:
 
@@ -46,7 +44,14 @@ And then calling the setup file again to install all the dependencies but ignori
 
 **_By entering the OctoPrint home screen for the first time you should setup your 3D Printer using the wizard from Octoprint, make sure to setup it correctly._** Don't forget to include the baudrate from your 3D Printer and enable the API Key **(respectively copying it)**.
 
+
+![api](https://user-images.githubusercontent.com/24254286/84068670-b5032d80-a99f-11ea-8302-51c3cbdd8b5c.png)
+
 **Paste the copied API Key on the 13th line of** ``` messenger.py ```
+
+![api2](https://user-images.githubusercontent.com/24254286/84068322-28f10600-a99f-11ea-8172-3be903c45eb2.png)
+
+#### If your 3D Printer is a Makerbot
 
 In case the printer you're using is a MakerBot, then you need to install the GPX plug-in, because OctoPrint doesn't support the x3g format, only gcode. GPX will take care of the conversion from gcode to x3g. Do the following:
 1. In the octoPrint home screen go to configurations/Plugin manager/Get More

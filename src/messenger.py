@@ -10,7 +10,7 @@ import sys
 
 octoIP = "http://127.0.0.1"
 octoPort = ":5000"
-apiKey = "63A30C9DD2D44F239C1ED9CA68963EA9"
+apiKey = "AF4CC91963CA476E871AED2A6DF29541"
 
 # json key with the API Key
 standardHeader = {'X-Api-Key': apiKey}
@@ -19,7 +19,7 @@ standardHeader = {'X-Api-Key': apiKey}
 secondExtruderExists = None
 
 def connectToPrinter():
-    # Connection handling
+    """ Connection handling """
     connectionData = {"command": "connect", "port": "/dev/ttyACM0", "baudrate": 115200, "printerProfile": "_default",
                       "save": True, "autoconnect": True}
     return requests.post(_url("connection"), json=connectionData, headers=standardHeader, timeout=5)
@@ -48,7 +48,7 @@ def resumePrinting():
     return requests.post(_url('job'), headers=standardHeader, timeout=5, json=jsonData)
 
 def checkFilesSD():
-    #Check all the files on the Octoprint Server and on the SD Card.
+    """ Check all the files on the Octoprint Server and on the SD Card. """
     files = []
     response = requests.get(_url('files'), headers=standardHeader, timeout=5)
     numberOfFiles = len(response.json()['files'])
@@ -63,7 +63,7 @@ def modelSelection():
     pass
 
 def checkNoneFloat(data):
-    # Function to check if the retrieved data is None
+    """ Function to check if the retrieved data is None """
     if data == None:
         data = 0.0
     return data
@@ -75,17 +75,21 @@ def checkNoneInteger(data):
     return data
 
 def printingProgressTracking():
-    response = requests.get(_url('job'), headers=standardHeader, timeout=5)
-    progress = response.json()['progress']['completion']
-    progress = checkNoneFloat(progress)
+    try:
+        response = requests.get(_url('job'), headers=standardHeader, timeout=5)
+        progress = response.json()['progress']['completion']
+        progress = checkNoneFloat(progress)
 
-    printTimeLeft = response.json()['progress']['printTimeLeft']
-    printTimeLeft = checkNoneInteger(printTimeLeft)
+        printTimeLeft = response.json()['progress']['printTimeLeft']
+        printTimeLeft = checkNoneInteger(printTimeLeft)
 
-    fileName = response.json()['job']['file']['name']
-    fileName = str(fileName)
-    fileSize = response.json()['job']['file']['size']    
-    return progress, printTimeLeft, fileName, fileSize
+        fileName = response.json()['job']['file']['name']
+        fileName = str(fileName)
+        fileSize = response.json()['job']['file']['size']    
+        return progress, printTimeLeft, fileName, fileSize
+    except(ValueError):
+        print("\n Could not obtain data from OctoPrint, have you inserted the API key correctly? \n")
+        sys.exit()
 
 
 def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled):
