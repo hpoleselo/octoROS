@@ -81,24 +81,18 @@ Make ``` octoROS.py ``` executable so ROS can identify it:
 
 ``` $ chmod +x octoROS.py ```
 
-Set the command to PATH so we can easily execute ``` print_file.sh``` from any directory:
+Set the command to PATH so we can easily execute ``` print_file.sh``` and ``` run-octoprint.sh ``` from any directory:
 
 ``` $ cd ~/ ```
 
 ``` $ echo PATH=$PATH:~/catkin_ws/src/octoROS/src >> .bashrc  ```
-
-Add small function to open the port and run the OctoPrint server at once:
-
-``` $ cd ~/ ```
-
-``` $ echo "run_octoprint() { sudo chmod +666 /dev/ttyACM0 ; octoprint serve ; }" >> .bashrc  ```
 
 ## Usage
 In order to use OctoROS, you need to have your Octoprint server running, have the wished model uploaded to it and located on ``` /src ``` folder from OctoROS:
 
 First run the Octoprint server along with opening the port for the printer (MAKE SURE THE PRINTER IS CONNECTED TO THE COMPUTER!)
 
-``` $ run_octoprint ```
+``` $ run-octoprint ```
 
 Open up another terminal and send the model you want to print with the following command:
 
