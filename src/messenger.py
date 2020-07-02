@@ -104,7 +104,7 @@ def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint,
     elif isToolHeating:
         finalState = "Extruder heating"
     elif isPrinting:
-        finalState = "Printing"
+        finalState = "Printing part"
     elif isCancelled:
         finalState = "Cancelling printing"
     elif isReadyToPrint:
@@ -163,8 +163,6 @@ def getprinterInfo():
     global secondExtruderExists
 
     #  O RETRIEVE SO DEVE SER DADO CASO ESTEJA TUDO OK, O QUE FALTA??
-
-
     # Retrieves the temperature of the main extruder and bed
     tool0TempA = response.json()['temperature']['tool0']['actual']
     bedTempA = response.json()['temperature']['bed']['actual']
